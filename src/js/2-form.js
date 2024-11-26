@@ -1,42 +1,49 @@
-let formData = {
+const form = document.querySelector('.feedback-form');
+const emailInput = form.querySelector('.input');
+const messageInput = form.querySelector('.textarea');
+
+form.addEventListener('input', handleInput);
+form.addEventListener('submit', formSubmit);
+
+const LS_KEY = 'feedback-form-state';
+
+const formData = {
   email: '',
   message: '',
 };
 
-const form = document.querySelector('.feedback-form');
-const key = 'feedback-form-state';
+function handleInput(event) {
+  const form = event.currentTarget;
+  const userEmail = form.elements.email.value;
+  const userMessage = form.elements.message.value;
 
-form.addEventListener('input', function cheсkInput(event) {
-  const input = event.target.name;
-  if (input === 'email' || input === 'message') {
-    formData[input] = event.target.value.trim();
-    localStorage.setItem(key, JSON.stringify(formData));
-  }
-});
+  formData.email = userEmail;
+  formData.message = userMessage;
 
-const inpEmail = document.querySelector('input[name="email"]');
-const inpMassage = document.querySelector('textarea[name="message"]');
-
-const saveData = JSON.parse(localStorage.getItem(key));
-if (saveData) {
-  inpEmail.value = saveData.email;
-  formData.email = saveData.email;
-  inpMassage.value = saveData.message;
-  formData.message = saveData.message;
+  localStorage.setItem(LS_KEY, JSON.stringify(formData));
 }
 
-form.addEventListener('submit', cheсkFofm);
-function cheсkFofm(event) {
-  event.preventDefault();
-  if (formData.email === '' || formData.message === '') {
-    alert('Fill please all fields');
-  } else {
-    console.log(formData);
-    localStorage.removeItem(key);
-    formData = {
-      email: '',
-      message: '',
-    };
-    (inpEmail.value = ''), (inpMassage.value = '');
+function fillInput() {
+  const savedData = localStorage.getItem(LS_KEY);
+
+  if (savedData) {
+    const values = JSON.parse(savedData);
+    emailInput.value = values.email || '';
+    messageInput.value = values.message || '';
   }
+}
+
+fillInput();
+
+function formSubmit(event) {
+  event.preventDefault();
+
+  if (!formData.email || !formData.message) {
+    return alert('Fill please all fields');
+  }
+  console.log(formData);
+  localStorage.clear();
+  formData.email = '';
+  formData.message = '';
+  form.reset();
 }
